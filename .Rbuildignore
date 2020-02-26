@@ -5,3 +5,4 @@ data-private
 examples
 ^README\.Rmd$
 ^\.github$
+^tic\.R$
