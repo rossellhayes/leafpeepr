@@ -90,10 +90,8 @@ leaf_recode_internal <- function(tbl, code_tbl, col) {
 }
 
 pivot_code_tbl_longer <- function(code_tbl, tbl) {
-  lapply(
-    seq(from = 2, to = ncol(code_tbl), by = 2),
-    function(i) code_tbl[(i - 1):i]
-  ) %>%
+  seq(from = 2, to = ncol(code_tbl), by = 2) %>%
+    purrr::map(function(i) code_tbl[(i - 1):i]) %>%
     `names<-`(purrr::map_chr(., ~ names(.)[names(.) %in% names(tbl)])) %>%
     purrr::map(
       ~ `names<-`(., c("code", "value")) %>%
