@@ -1,0 +1,148 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+
+library(leafpeepr)
+acs_md <- dplyr::as_tibble(leafpeepr::acs_md)
+
+options(tibble.print_min = 5, tibble.print_max = 5)
+```
+
+# leafpeepr <img src="man/figures/logo.png?raw=TRUE" align="right" height="138" />
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+> **leaf peeper**: a sightseer who enjoys observing the color change in trees'
+leaves, especially in the autumn
+>
+> **leafpeepr**: an R package for producing raking targets from census microdata
+
+**leafpeepr** prepares census microdata to be used for weighting targets with raking packages like [**autumn**](https://github.com/aaronrudkin/autumn).
+
+## Installation
+
+```{r eval = FALSE}
+# install.packages("remotes")
+remotes::install_github("rossellhayes/leafpeepr")
+```
+
+## Usage
+
+Let's get an example dataset of census microdata ready to be used as targets for raking.
+
+```{r}
+library(leafpeepr)
+acs_md
+```
+
+### Recoding
+
+`leaf_recode()` recodes columns using a data frame as a map.
+
+```{r}
+acs_race_codes
+
+leaf_recode(acs_md, acs_race_codes)
+```
+
+The recoding map can also use formulas.
+
+```{r}
+acs_age_codes
+
+leaf_recode(acs_md, acs_age_codes)
+```
+
+
+You can recode multiple columns at once using wide or long data frames.
+
+```{r}
+acs_codes
+leaf_recode(acs_md, acs_codes)
+
+acs_codes_long
+leaf_recode(acs_md, acs_codes_long)
+```
+
+### Creating interaction variables
+
+`leaf_interact()` creates an interaction between two variables.
+
+```{r}
+acs_md_recoded <- leaf_recode(acs_md, acs_codes) %>% 
+  janitor::clean_names() #Make column names nicer to look at
+
+leaf_interact(acs_md_recoded, race, hispan)
+```
+
+`leaf_interactions()` creates multiple interactions at once using a list.
+
+```{r}
+leaf_interactions(acs_md_recoded, c("race", "educ"), c("sex", "age"))
+```
+
+`leaf_interact_all()` creates interactions between one variable and all other variables.
+
+```{r}
+leaf_interact_all(acs_md_recoded, sex, except = perwt)
+```
+
+
+### Generating a target data frame
+
+Once our data is recoded, `leaf_peep()` prepares it to be used as weighting targets in `autumn::harvest()`
+
+```{r}
+acs_md_interacted <- leaf_interactions(
+  acs_md_recoded, c("race", "educ"), c("sex", "age")
+)
+
+leaf_peep(acs_md_interacted, weight_col = perwt)
+```
+
+### Collapsing categories
+
+```{r, include = FALSE}
+options(tibble.print_min = 10, tibble.print_max = 10)
+```
+
+`leaf_other()` recategorizes levels into an other category if their proportion is below a certain cutoff.
+
+```{r}
+acs_md_targets <- leaf_peep(acs_md_interacted, weight_col = perwt)
+
+dplyr::arrange(acs_md_targets, proportion)
+
+leaf_other(acs_md_targets, 0.01) %>% 
+  dplyr::arrange(proportion)
+```
+
+If the other category would itself be under the cutoff proportion, the next smallest level is added to the other category.
+To avoid this, set `inclusive = FALSE`.
+
+```{r}
+leaf_other(acs_md_targets, 0.01, inclusive = FALSE) %>% 
+  dplyr::arrange(proportion)
+```
+
+## Credits
+
+Hex sticker font is [Source Code Pro](https://github.com/adobe-fonts/source-code-pro) by [Adobe](https://adobe.com).
+
+Image adapted from [publicdomainvectors.org](https://publicdomainvectors.org/en/free-clipart/Autumn-leaves-vector-background/64717.html) and [Twemoji](https://github.com/twitter/twemoji) by [Twitter](https://twitter.com).
+
+---
+
+Please note that **leafpeepr** is released with a
+[Contributor Code of Conduct](https://www.contributor-covenant.org/version/2/0/code_of_conduct/).

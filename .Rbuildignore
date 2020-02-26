@@ -1,3 +1,7 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^LICENSE\.md$
+data-private
+examples
+^README\.Rmd$
+^\.github$

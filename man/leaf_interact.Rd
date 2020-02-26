@@ -4,21 +4,21 @@
 \alias{leaf_interact}
 \title{Create an interaction column}
 \usage{
-leaf_interact(tbl, ..., cols, sep = " x ", col_sep = NULL)
+leaf_interact(tbl, ..., cols = NULL, sep = " x ", col_sep = NULL)
 }
 \arguments{
 \item{tbl}{A data frame}
 
-\item{...}{Two or more column names to interact, optionally in a character
-vector}
+\item{...}{Two or more column names to interact, either unquoted names or a
+character vector}
 
 \item{cols}{A character vector of two or more column names}
 
 \item{sep}{A string indicating the separator to place between values in
-observations. Defaults to " x "}
+observations}
 
 \item{col_sep}{A string indicating the separator to place between column
-names. Defaults to \code{sep} with spaces replaced by underscores}
+names. If NULL, defaults to \code{sep} with spaces replaced by underscores}
 }
 \value{
 A modified \code{tbl} with an interaction column added
@@ -27,5 +27,9 @@ A modified \code{tbl} with an interaction column added
 Description
 }
 \seealso{
-\code{\link[=leaf_interactions]{leaf_interactions()}} to create multiple interactions at once
+\code{\link[=leaf_interactions]{leaf_interactions()}} to create multiple interactions with one
+function
+
+\code{\link[=leaf_interact_all]{leaf_interact_all()}} to create interactions bewteen a column and all
+other columns
 }

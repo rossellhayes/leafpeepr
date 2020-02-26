@@ -13,10 +13,10 @@ leaf_interactions(tbl, ..., sep = " x ", col_sep = NULL)
 optionally in a list}
 
 \item{sep}{A string indicating the separator to place between values in
-observations. Defaults to " x "}
+observations}
 
 \item{col_sep}{A string indicating the separator to place between column
-names. Defaults to \code{sep} with spaces replaced by underscores}
+names. If NULL, defaults to \code{sep} with spaces replaced by underscores}
 }
 \value{
 A modified \code{tbl} with an interaction column added
@@ -25,5 +25,7 @@ A modified \code{tbl} with an interaction column added
 Description
 }
 \seealso{
-\code{\link[=leaf_interact]{leaf_interact()}} to create interactions one at a time
+\code{\link[=leaf_interact]{leaf_interact()}} to create interactions one at a time\preformatted{[leaf_interact_all()] to create interactions bewteen a column and all
+other columns
+}
 }
