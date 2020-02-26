@@ -40,7 +40,8 @@ leaf_recode <- function(tbl, code_tbl) {
       .,
       names(.),
       ~ leaf_recode_internal(tbl = tbl, code_tbl = .x, col = .y)
-    )
+    ) %>%
+    dplyr::mutate_all(readr::parse_guess)
 
   purrr::map_dfc(
     names(tbl),
