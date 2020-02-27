@@ -65,32 +65,31 @@ leaf_recode <- function(tbl, code_tbl) {
 leaf_recode_internal <- function(tbl, code_tbl, col) {
   if (all(stringr::str_detect(code_tbl[["code"]], "^~"))) {
     result <- code_tbl %>%
-      dplyr::transmute(
-        .formula = code %>%
+      dplyr::mutate(
+        code = code %>%
           stringr::str_replace("\\.", col) %>%
           stringr::str_replace("~\\s?", "") %>%
-          glue::glue(' ~ "{value}"')
+          stringr::str_squish(),
+        .formula = paste0(code, ' ~ "', value, '"')
       ) %>%
       dplyr::pull(.formula) %>%
       glue::glue_collapse(sep = ", ") %>%
       glue::glue("dplyr::transmute(tbl, {col} = dplyr::case_when(", ., "))") %>%
-      parse(text = .) %>%
-      eval()
+      rlang::parse_expr() %>%
+      rlang::eval_tidy()
 
     return(result)
   }
 
-  col <- rlang::sym(col)
-
   code_tbl <- code_tbl %>%
     dplyr::mutate_all(as.character) %>%
-    dplyr::rename(".code" = "code", {{col}} := "value")
+    dplyr::rename(".code" = "code")
 
   result <- tbl %>%
     dplyr::mutate_all(as.character) %>%
-    dplyr::rename(".code" = {{col}}) %>%
+    dplyr::rename(".code" = col) %>%
     dplyr::left_join(code_tbl, by = ".code") %>%
-    dplyr::select({{col}})
+    dplyr::select(!!rlang::sym(col) := value)
 
   result
 }
