@@ -5,6 +5,14 @@
 
 <!-- badges: start -->
 
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+[![License:
+MIT](https://img.shields.io/badge/license-MIT-blueviolet.svg)](https://opensource.org/licenses/MIT)
+[![Travis build
+status](https://travis-ci.org/rossellhayes/leafpeepr.svg?branch=master)](https://travis-ci.org/rossellhayes/leafpeepr)
+[![AppVeyor Build
+Status](https://ci.appveyor.com/api/projects/status/github/rossellhayes/leafpeepr?branch=master&svg=true)](https://ci.appveyor.com/project/rossellhayes/leafpeepr)
 <!-- badges: end -->
 
 > *‘I’m sorry, leaf peeping? Is that something we do now?’* – [President
