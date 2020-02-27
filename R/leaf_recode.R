@@ -1,21 +1,30 @@
 #' Recode columns of a data frame
 #'
-#' `leaf_recode()` recodes values in a column of a data frame by joining with a
-#' data frame of recoded values. `leaf_recode_all()` recodes all columns that
-#' have matching coumn names between both data frames.
+#' Recodes values in a data frame by joining with a data frame of recoded
+#' values.
 #'
 #' @param tbl Data frame to modify
-#' @param code_tbl A data frame containing a column of codes and a column of
-#'     replacment values with the same name as `col`
-#' @param col The column to recode
-#' @param code_col The column of `code_tbl` containing the codes present in
-#'     `tbl`
+#' @param code_tbl A data frame of recoding values, either:
+#'
+#'   * A data frame with three columns, `variable`, `code`, and `value`.
+#'     `variable` matches the column name to recode in `tbl`. `code` matches the
+#'     encoded values in `tbl`. `value` contains the values that each code
+#'     should be replaced with. (For example, see `leafpeepr::acs_codes_long`.)
+#'
+#'   * A data frame with two adjacent columns for each column to be recoded in
+#'     `tbl`. One column contains encoded values and can have any name. The
+#'     other contains recoded values and has the same name as the column to
+#'     recode in `tbl`. (For example, see `leafpeepr::acs_codes`.)
+#'
+#'   Each code column can contain either literal codes or one-sided formulas.
+#'   (For example, compare `leafpeepr::acs_race_codes` and
+#'   `leafpeepr::acs_age_codes`.)
 #'
 #' @return A data frame with selected columns recoded
 #'
 #' @seealso [dplyr::case_when()] to recode data using formulas
 #'
-#' @importFrom rlang %||%
+#' @importFrom rlang :=
 #'
 #' @export
 #'
@@ -23,22 +32,23 @@
 
 leaf_recode <- function(tbl, code_tbl) {
   if (ncol(code_tbl) %% 2 == 0) {
-    if (!any(names(code_tbl) %in% names(tbl)))
+    if (!any(names(code_tbl) %in% names(tbl))) {
       glubort("`leaf_recode()` can only use a wide `code_tbl` if its column",
               "names match `tbl`.")
+    }
     code_tbl <- pivot_code_tbl_longer(code_tbl, tbl)
   } else if (ncol(code_tbl) != 3) {
-    glubort("Invalid `code_tbl`: code_tbl must have either three columns,",
-            "or two columns for each recoding.")
+    glubort("Invalid `code_tbl`: code_tbl must have either three columns",
+            "or two columns for each variable in `tbl` to recode.")
   }
 
-  code_list <- split(code_tbl, code_tbl$variable) %>%
+  code_list <- code_tbl %>%
+    split(code_tbl$variable) %>%
     purrr::map(~ dplyr::select(., -variable))
 
   decoded_cols <- code_list %>%
     purrr::map2_dfc(
-      .,
-      names(.),
+      ., names(.),
       ~ leaf_recode_internal(tbl = tbl, code_tbl = .x, col = .y)
     ) %>%
     dplyr::mutate_all(readr::parse_guess)
@@ -53,23 +63,19 @@ leaf_recode <- function(tbl, code_tbl) {
 }
 
 leaf_recode_internal <- function(tbl, code_tbl, col) {
-  if (length(code_tbl) != 2)
-    glubort("`code_tbl` must have two columns.",
-            "You might want `leaf_recode_all()`.")
-
-  if (all(grepl("^~", code_tbl[["code"]]))) {
+  if (all(stringr::str_detect(code_tbl[["code"]], "^~"))) {
     result <- code_tbl %>%
       dplyr::transmute(
-        .formula = gsub("\\.", col, code) %>%
-          gsub("~\\s?", "", .) %>%
-          paste0(' ~ "', value, '"'
-        )
+        .formula = code %>%
+          stringr::str_replace("\\.", col) %>%
+          stringr::str_replace("~\\s?", "") %>%
+          glue::glue(' ~ "{value}"')
       ) %>%
       dplyr::pull(.formula) %>%
-      paste(collapse = ", ") %>%
-      paste0("dplyr::mutate(tbl, ", col, " = dplyr::case_when(", ., "))") %>%
-      {eval(parse(text = .))} %>%
-      dplyr::select_at(col)
+      glue::glue_collapse(sep = ", ") %>%
+      glue::glue("dplyr::transmute(tbl, {col} = dplyr::case_when(", ., "))") %>%
+      parse(text = .) %>%
+      eval()
 
     return(result)
   }
@@ -77,8 +83,8 @@ leaf_recode_internal <- function(tbl, code_tbl, col) {
   col <- rlang::sym(col)
 
   code_tbl <- code_tbl %>%
-    dplyr::rename(".code" = "code", {{col}} := "value") %>%
-    dplyr::mutate_all(as.character)
+    dplyr::mutate_all(as.character) %>%
+    dplyr::rename(".code" = "code", {{col}} := "value")
 
   result <- tbl %>%
     dplyr::mutate_all(as.character) %>%
@@ -94,8 +100,14 @@ pivot_code_tbl_longer <- function(code_tbl, tbl) {
     purrr::map(function(i) code_tbl[(i - 1):i]) %>%
     `names<-`(purrr::map_chr(., ~ names(.)[names(.) %in% names(tbl)])) %>%
     purrr::map(
-      ~ `names<-`(., c("code", "value")) %>%
-        dplyr::mutate_all(as.character) %>%
+      function(code_tbl) {
+        names(code_tbl)[which(!names(code_tbl) %in% names(tbl))] <- "code"
+        names(code_tbl)[which(names(code_tbl) %in% names(tbl))] <- "value"
+        code_tbl
+      }
+    ) %>%
+    purrr::map(
+      ~ dplyr::mutate_all(., as.character) %>%
         janitor::remove_empty("rows")
     ) %>%
     dplyr::bind_rows(.id = "variable")

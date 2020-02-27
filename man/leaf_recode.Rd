@@ -9,21 +9,28 @@ leaf_recode(tbl, code_tbl)
 \arguments{
 \item{tbl}{Data frame to modify}
 
-\item{code_tbl}{A data frame containing a column of codes and a column of
-replacment values with the same name as \code{col}}
+\item{code_tbl}{A data frame of recoding values, either:
+\itemize{
+\item A data frame with three columns, \code{variable}, \code{code}, and \code{value}.
+\code{variable} matches the column name to recode in \code{tbl}. \code{code} matches the
+encoded values in \code{tbl}. \code{value} contains the values that each code
+should be replaced with. (For example, see \code{leafpeepr::acs_codes_long}.)
+\item A data frame with two adjacent columns for each column to be recoded in
+\code{tbl}. One column contains encoded values and can have any name. The
+other contains recoded values and has the same name as the column to
+recode in \code{tbl}. (For example, see \code{leafpeepr::acs_codes}.)
+}
 
-\item{col}{The column to recode}
-
-\item{code_col}{The column of \code{code_tbl} containing the codes present in
-\code{tbl}}
+Each code column can contain either literal codes or one-sided formulas.
+(For example, compare \code{leafpeepr::acs_race_codes} and
+\code{leafpeepr::acs_age_codes}.)}
 }
 \value{
 A data frame with selected columns recoded
 }
 \description{
-\code{leaf_recode()} recodes values in a column of a data frame by joining with a
-data frame of recoded values. \code{leaf_recode_all()} recodes all columns that
-have matching coumn names between both data frames.
+Recodes values in a data frame by joining with a data frame of recoded
+values.
 }
 \examples{
 # A data frame of encoded data
