@@ -18,12 +18,14 @@ Depends:
 Imports:
     autumn,
     dplyr,
+    glue,
     janitor,
     magrittr,
     purrr,
+    readr,
     rlang,
-    tidyr,
-    readr
+    stringr,
+    tidyr
 Suggests:
     knitr,
     rmarkdown,
