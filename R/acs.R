@@ -1,7 +1,7 @@
-#' Synthetic 2018 ACS microdata for Maryland
+#' Synthetic 2018 ACS microdata for New Hampshire
 #'
 #' Example dataset based on the American Community Survey of the state of
-#' Maryland in 2018. ***This is not real data.*** It was synthesized using
+#' New Hampshire in 2018. ***This is not real data.*** It was synthesized using
 #' [synthpop::syn()]. This data should only be used for examples and cannot be
 #' used in real analyses.
 #'
@@ -21,12 +21,13 @@
 #' @source Synthesized using data from
 #'     [IPUMS-USA](https://usa.ipums.org/usa/index.shtml)
 #'
-#' @seealso Package [ipumsr][ipumsr::ipumsr-package] to get real census
-#'   microdata
+#' @seealso [acs_codes]
+#'
+#'   Package [ipumsr][ipumsr::ipumsr-package] to get real census microdata
 #'
 #'   Package [synthpop][synthpop::synthpop-package] to synthesize data
 
-"acs_md"
+"acs_nh"
 
 #' Encodings for 2018 ACS microdata
 #'
@@ -38,8 +39,9 @@
 #'
 #' @source [IPUMS-USA](https://usa.ipums.org/usa/index.shtml)
 #'
-#' @seealso Package [ipumsr][ipumsr::ipumsr-package] to get real census
-#'   microdata
+#' @seealso [acs_nh]
+#'
+#'   Package [ipumsr][ipumsr::ipumsr-package] to get real census microdata
 
 "acs_codes"
 
@@ -49,8 +51,12 @@
 
 #' @rdname acs_codes
 
-"acs_race_codes"
+"acs_sex_codes"
 
 #' @rdname acs_codes
 
-"acs_age_codes"
+"acs_bpl_codes"
+
+#' @rdname acs_codes
+
+"acs_educ_codes"

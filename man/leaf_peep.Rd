@@ -20,11 +20,11 @@ Convert a data frame to weighting targets
 }
 \examples{
 # Load a dataset of example microdata
-acs_md
+acs_nh
 
 # Generate weighting targets
-leaf_peep(acs_md)
+leaf_peep(acs_nh)
 
 # Microdata with a weights column
-leaf_peep(acs_md, weight_col = "PERWT")
+leaf_peep(acs_nh, weight_col = "PERWT")
 }
