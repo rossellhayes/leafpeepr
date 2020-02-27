@@ -23,12 +23,12 @@ options(tibble.print_min = 5, tibble.print_max = 5)
 <!-- badges: start -->
 <!-- badges: end -->
 
-> **leaf peeper**: a sightseer who enjoys observing the color change in trees'
-leaves, especially in the autumn
->
-> **leafpeepr**: an R package for producing raking targets from census microdata
+> *'I'm sorry, leaf peeping? Is that something we do now?'*
+> -- [President Jed Bartlet, *The West Wing*](https://youtube.com/watch?v=0gL3Jh_-cpw)
 
-**leafpeepr** prepares census microdata to be used for weighting targets with raking packages like [**autumn**](https://github.com/aaronrudkin/autumn).
+**leafpeepr** prepares data for weighting with raking packages like [**autumn**](https://github.com/aaronrudkin/autumn).
+It creates weighting targets from census microdata.
+It can also recode values and collapse values into an *other* category in both census data and survey data. 
 
 ## Installation
 

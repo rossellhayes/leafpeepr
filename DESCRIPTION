@@ -8,8 +8,10 @@ Authors@R:
            role = c("aut", "cre"),
            email = "alexander@rossellhayes.com",
            comment = c(ORCID = "0000-0001-9412-0457"))
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Description: Prepare data for weighting with raking packages by
+    creating weighting targets from census microdata. Also recodes values
+    and collapses values into an "other" category in both census data and
+    survey data.
 License: MIT + file LICENSE
 URL: https://github.com/rossellhayes/leafpeepr
 BugReports: https://github.com/rossellhayes/leafpeepr/issues
