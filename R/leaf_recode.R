@@ -44,13 +44,12 @@ leaf_recode <- function(tbl, code_tbl) {
 
   code_list <- code_tbl %>%
     split(code_tbl$variable) %>%
-    purrr::map(~ dplyr::select(., -variable))
+    purrr::map(dplyr::select_at, dplyr::vars(-"variable"))
 
-  decoded_cols <- code_list %>%
-    purrr::map2_dfc(
-      ., names(.),
-      ~ leaf_recode_internal(tbl = tbl, code_tbl = .x, col = .y)
-    ) %>%
+  decoded_cols <- purrr::map2_dfc(
+    code_list, names(code_list),
+    ~ leaf_recode_internal(tbl = tbl, code_tbl = .x, col = .y)
+  ) %>%
     dplyr::mutate_all(readr::parse_guess)
 
   purrr::map_dfc(
@@ -63,6 +62,9 @@ leaf_recode <- function(tbl, code_tbl) {
 }
 
 leaf_recode_internal <- function(tbl, code_tbl, col) {
+  code    <- rlang::sym("code")
+  value   <- rlang::sym("value")
+
   code_tbl %>%
     dplyr::mutate(
       code = stringr::str_squish(code),
@@ -74,19 +76,27 @@ leaf_recode_internal <- function(tbl, code_tbl, col) {
           stringr::str_squish(),
         paste(col, "==", code)
       ),
-      .formula = paste0(code, ' ~ "', value, '"')
+      "formula" := paste0(code, ' ~ "', value, '"')
     ) %>%
-    dplyr::pull(.formula) %>%
+    dplyr::pull("formula") %>%
     glue::glue_collapse(sep = ", ") %>%
-    glue::glue("dplyr::transmute(tbl, {col} = dplyr::case_when(", ., "))") %>%
+    {glue::glue("dplyr::transmute(tbl, {col} = dplyr::case_when({.}))")} %>%
     rlang::parse_expr() %>%
     rlang::eval_tidy()
 }
 
 pivot_code_tbl_longer <- function(code_tbl, tbl) {
-  seq(from = 2, to = ncol(code_tbl), by = 2) %>%
-    purrr::map(function(i) code_tbl[(i - 1):i]) %>%
-    `names<-`(purrr::map_chr(., ~ names(.)[names(.) %in% names(tbl)])) %>%
+  code_list <- purrr::map(
+      seq(from = 2, to = ncol(code_tbl), by = 2),
+      function(i) code_tbl[(i - 1):i]
+    )
+
+  names(code_list) <- purrr::map_chr(
+    code_list,
+    ~ names(.)[names(.) %in% names(tbl)]
+  )
+
+  code_list %>%
     purrr::map(
       function(code_tbl) {
         names(code_tbl)[which(!names(code_tbl) %in% names(tbl))] <- "code"
@@ -94,9 +104,7 @@ pivot_code_tbl_longer <- function(code_tbl, tbl) {
         code_tbl
       }
     ) %>%
-    purrr::map(
-      ~ dplyr::mutate_all(., as.character) %>%
-        janitor::remove_empty("rows")
-    ) %>%
+    purrr::map(dplyr::mutate_all, as.character) %>%
+    purrr::map(janitor::remove_empty, "rows") %>%
     dplyr::bind_rows(.id = "variable")
 }
