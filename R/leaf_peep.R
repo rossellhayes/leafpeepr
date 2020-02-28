@@ -11,17 +11,17 @@
 
 leaf_peep <- function(tbl, weight_col = NULL) {
   if (is_not_null(weight_col)) {
-    weight_col <- rlang::sym(rlang::as_name(rlang::enquo(weight_col)))
+    weight_col <- rlang::as_name(rlang::enquo(weight_col))
   } else {
-    weight_col <- rlang::sym(".weight")
-    tbl        <- dplyr::mutate(tbl, .weight = 1)
+    weight_col <- ".weight"
+    tbl        <- dplyr::mutate(tbl, ".weight" := 1)
   }
 
-  weight_sum <- sum(tbl[[rlang::as_name(weight_col)]], na.rm = TRUE)
+  weight_sum <- sum(tbl[[weight_col]], na.rm = TRUE)
 
   tbl %>%
     dplyr::mutate_at(
-      dplyr::vars(-all_of(weight_col)),
+      dplyr::vars(-tidyselect::all_of(weight_col)),
       ~ tidyr::replace_na(as.character(.), "NA")
     ) %>%
     tidyr::pivot_longer(
