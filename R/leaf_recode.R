@@ -65,7 +65,8 @@ leaf_recode_internal <- function(tbl, code_tbl, col) {
   code    <- rlang::sym("code")
   value   <- rlang::sym("value")
 
-  code_tbl %>%
+  formulas <- code_tbl %>%
+    dplyr::rowwise() %>%
     dplyr::mutate(
       code = stringr::str_squish(code),
       code = dplyr::if_else(
@@ -74,22 +75,21 @@ leaf_recode_internal <- function(tbl, code_tbl, col) {
           stringr::str_replace("\\.", col) %>%
           stringr::str_replace("^~\\s?", "") %>%
           stringr::str_squish(),
-        paste(col, "==", code)
+        unclass(glue::glue('{col} == "{code}"'))
       ),
-      "formula" := paste0(code, ' ~ "', value, '"')
+      "formula" := unclass(glue::glue('{code} ~ "{value}"'))
     ) %>%
     dplyr::pull("formula") %>%
-    glue::glue_collapse(sep = ", ") %>%
-    {glue::glue("dplyr::transmute(tbl, {col} = dplyr::case_when({.}))")} %>%
+    glue::glue_collapse(sep = ", ")
+
+  glue::glue("dplyr::transmute(tbl, {col} = dplyr::case_when({formulas}))") %>%
     rlang::parse_expr() %>%
     rlang::eval_tidy()
 }
 
 pivot_code_tbl_longer <- function(code_tbl, tbl) {
-  code_list <- purrr::map(
-      seq(from = 2, to = ncol(code_tbl), by = 2),
-      function(i) code_tbl[(i - 1):i]
-    )
+  code_list <- seq(from = 2, to = ncol(code_tbl), by = 2) %>%
+    purrr::map(function(i) code_tbl[(i - 1):i])
 
   names(code_list) <- purrr::map_chr(
     code_list,
@@ -105,6 +105,5 @@ pivot_code_tbl_longer <- function(code_tbl, tbl) {
       }
     ) %>%
     purrr::map(dplyr::mutate_all, as.character) %>%
-    purrr::map(janitor::remove_empty, "rows") %>%
-    dplyr::bind_rows(.id = "variable")
+    purrr::map_dfr(janitor::remove_empty, "rows", .id = "variable")
 }
