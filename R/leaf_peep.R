@@ -10,37 +10,26 @@
 #' @example examples/leaf_peep.R
 
 leaf_peep <- function(tbl, weight_col = NULL) {
-  .proportion <- rlang::sym(".proportion")
-  data        <- rlang::sym("data")
-
-  if (is_not_null(weight_col))
+  if (is_not_null(weight_col)) {
     weight_col <- rlang::sym(rlang::as_name(rlang::enquo(weight_col)))
-
-  if (is.null(weight_col)) {
+  } else {
     weight_col <- rlang::sym(".weight")
     tbl        <- dplyr::mutate(tbl, .weight = 1)
   }
 
-  weight_sum <- dplyr::summarize(tbl, sum({{weight_col}}, na.rm = TRUE))[[1, 1]]
+  weight_sum <- sum(tbl[[rlang::as_name(weight_col)]], na.rm = TRUE)
 
   tbl %>%
     dplyr::mutate_at(
-      dplyr::vars(-{{weight_col}}),
+      dplyr::vars(-all_of(weight_col)),
       ~ tidyr::replace_na(as.character(.), "NA")
     ) %>%
-    dplyr::group_by_at(dplyr::vars(-{{weight_col}})) %>%
-    dplyr::summarize(.proportion = sum({{weight_col}}) / weight_sum) %>%
-    dplyr::ungroup() %>%
-    dplyr::summarize_at(
-      dplyr::vars(dplyr::everything(), -.proportion),
-      ~ list(autumn::weighted_pct(., .proportion))
-    ) %>%
     tidyr::pivot_longer(
-      dplyr::everything(), names_to = "variable", values_to = "data"
+      -weight_col, names_to = "variable", values_to = "level"
     ) %>%
-    dplyr::rowwise() %>%
-    dplyr::mutate(
-      data = list(dplyr::tibble(level = names(data), proportion = data))
+    dplyr::group_by_at(dplyr::vars(-weight_col)) %>%
+    dplyr::summarize(
+      "proportion" := sum(!!rlang::sym(weight_col)) / weight_sum
     ) %>%
-    tidyr::unnest(data)
+    dplyr::ungroup()
 }

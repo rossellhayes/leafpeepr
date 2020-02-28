@@ -18,7 +18,6 @@ BugReports: https://github.com/rossellhayes/leafpeepr/issues
 Depends:
     R (>= 3.5)
 Imports:
-    autumn,
     dplyr,
     glue,
     janitor,
@@ -35,8 +34,6 @@ Suggests:
     testthat
 VignetteBuilder: 
     knitr
-Remotes:
-    aaronrudkin/autumn
 Encoding: UTF-8
 Language: en-US
 LazyData: true
