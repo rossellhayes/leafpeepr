@@ -1,7 +1,7 @@
 Type: Package
 Package: leafpeepr
 Title: Prepare Raking Targets from Census Microdata
-Version: 0.1.2
+Version: 0.1.3
 Authors@R: 
     person(given = "Alexander",
            family = "Rossell Hayes",
@@ -26,7 +26,8 @@ Imports:
     readr,
     rlang,
     stringr,
-    tidyr
+    tidyr,
+    tidyselect
 Suggests:
     knitr,
     rmarkdown,

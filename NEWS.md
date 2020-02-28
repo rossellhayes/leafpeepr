@@ -1,7 +1,11 @@
+# leafpeepr 0.1.3
+
+* Fixed bug in leaf_peep() and added import of {{tidyselect}}
+
 # leafpeepr 0.1.2
 
-* Simplified code of leaf_peep(), making it run faster and removing dependency
-  on {{autumn}}
+* Simplified code of leaf_peep(), making it run faster and removing import
+  of {{autumn}}
 
 # leafpeepr 0.1.1
 
