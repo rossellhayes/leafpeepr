@@ -1,7 +1,7 @@
 Type: Package
 Package: leafpeepr
 Title: Prepare Raking Targets from Census Microdata
-Version: 0.1.1
+Version: 0.1.2
 Authors@R: 
     person(given = "Alexander",
            family = "Rossell Hayes",
